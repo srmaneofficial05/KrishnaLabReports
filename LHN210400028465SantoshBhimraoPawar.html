@@ -1,0 +1,382 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta content="width=device-width, initial-scale=1" name="viewport" /><meta name="description" /><meta name="author" />
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    
+    <link href="/assets/Google_Fonts_Sans.css" rel="stylesheet" type="text/css" /><link href="assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" /><link href="assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /><link href="assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css" /><link href="assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- END GLOBAL MANDATORY STYLES -->
+
+    <!-- BEGIN THEME STYLES -->
+    <!-- DOC: To use 'rounded corners' style just load 'components-rounded.css' stylesheet instead of 'components.css' in the below style tag -->
+   <link id="style_components" href="assets/global/css/components-rounded.css" rel="stylesheet" type="text/css" /><link href="assets/global/css/plugins.css" rel="stylesheet" type="text/css" /><link href="assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css" /><link id="style_color" href="assets/admin/layout/css/themes/blue.css" rel="stylesheet" type="text/css" /><link href="assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css" /><link href="assets/chosen.css" rel="stylesheet" type="text/css" />
+    <!-- END THEME STYLES -->
+
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+    <!-- BEGIN JAVASCRIPTS (Load javascripts at bottom, this will reduce page load time) -->
+    <!-- BEGIN CORE PLUGINS -->
+    <!--[if lt IE 9]>
+        <script src="~/assets/global/plugins/respond.min.js"></script>
+        <script src="~/assets/global/plugins/excanvas.min.js"></script> 
+    <![endif]-->
+   <script src='/assets/global/plugins/jquery.min.js' type="text/javascript"></script>
+    <script src='/assets/global/plugins/jquery-migrate.min.js' type="text/javascript"></script>
+
+    <script src="/Scripts/modernizr-2.6.2.js"></script>
+<script src="/assets/global/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script src="/assets/global/plugins/jquery.blockui.min.js"></script>
+<script src="/assets/global/plugins/uniform/jquery.uniform.min.js"></script>
+<script src="/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"></script>
+<script src="/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/assets/global/plugins/jquery.cokie.min.js"></script>
+
+
+    <!-- IMPORTANT! Load jquery-ui.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+    <script src='/assets/global/plugins/jquery-ui/jquery-ui.min.js' type="text/javascript"></script>
+    <script src='/assets/global/plugins/bootstrap/js/bootstrap.min.js' type="text/javascript"></script>
+    <script src='/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js' type="text/javascript"></script>
+
+    <!-- END CORE PLUGINS -->
+
+    <!-- BEGIN PAGE LEVEL SCRIPTS -->
+    <script src='/assets/global/scripts/metronic.js' type="text/javascript"></script>
+    <script src='/assets/admin/layout/scripts/layout.js' type="text/javascript"></script>
+     <script src='/assets/chosen.js' type="text/javascript"></script>
+
+    <!-- END PAGE LEVEL SCRIPTS -->
+    <script>
+        $(document).ready(function() {
+            Metronic.init(); // init metronic core componets
+            Layout.init(); // init layout
+            $(".chosen").chosen();
+            //$('.chosen-search').chosen();
+            console.log('Plugins loaded');
+
+        });
+    </script>
+
+     <script type="text/javascript">
+
+         var timeInSecondsAfterSessionOut; // change this to change session time out (in seconds).
+         var secondTick = 0;
+
+         function ResetThisSession(timeout) {
+             secondTick = 0;
+             timeInSecondsAfterSessionOut = timeout;
+         }
+
+         function StartThisSessionTimer() {
+             secondTick++;
+             var timeLeft = ((timeInSecondsAfterSessionOut - secondTick) / 60).toFixed(0); // in minutes
+             timeLeft = timeInSecondsAfterSessionOut - secondTick; // override, we have 30 secs only 
+
+             var minutes = (Math.floor(timeLeft / 60));
+             var finalseconds = timeLeft - minutes * 60;
+
+             if (secondTick > timeInSecondsAfterSessionOut) {
+                 clearTimeout(tick);
+                 window.location = "../../Logout.aspx";
+                 return;
+             }
+             tick = setTimeout("StartThisSessionTimer()", 1000);
+         }
+
+         StartThisSessionTimer();
+
+     </script>
+
+    <script type="text/javascript">
+
+        function SessionExpireAlert(timeout) {
+            ResetThisSession(timeout);
+        };
+
+    </script>
+    
+    <style type="text/css">
+        .page-content-wrapper2 .page-content {
+            /* margin-left: 235px; */
+            margin-top: 0px;
+            min-height: 600px;
+            padding: 05px 20px 10px 20px;
+            background: white !important;
+        }
+    </style>
+    
+    <title>Patient Report Details</title>
+
+    <link rel="stylesheet" type="text/css" href='../assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.css' />
+
+    <link rel="stylesheet" type="text/css" href="../assets/global/plugins/bootstrap-toastr/toastr.min.css" />
+    <script type="text/javascript" src='/assets/global/plugins/bootstrap-toastr/toastr.min.js'></script>
+
+    <script type="text/javascript">
+        function pageLoad(sender, args) {
+            ProcessJqueryPlugins();
+        }
+
+        function PrintReportsByVisitID(pdfFileUrl, waitSeconds, Visitid) {
+            setTimeout(function () { OpenReportPage(pdfFileUrl, Visitid); }, waitSeconds);
+        }
+
+        function CustomToastrAlert(message1, message2, type) {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "positionClass": "toast-top-right",
+                "onclick": null,
+                "showDuration": "1000",
+                "hideDuration": "2000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+            if (type == 'SUCCESS')
+                toastr.success(message1, message2);
+            else if (type == 'ERROR')
+                toastr.error(message1, message2);
+        }
+
+        function OpenReportPage(pdfFileUrl, Visitid) {
+
+            CustomToastrAlert("Download Report of Visit ID : " + Visitid, "Downloading", "SUCCESS");
+            //var myWindow = window.open(pdfFileUrl, "", "width=200, height=100");
+            var myWindow = window.open(pdfFileUrl);
+            this.window.focus();
+        }
+
+    </script>
+
+<title>
+
+</title></head>
+<body class="page-container-bg-solid">
+    <form method="post" action="./Patient_ReportDetails?PatientID=f501a525-7a28-43a1-86f6-419ad87e7b25&amp;VisitID=8358646" id="form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="lOIQb2x/Upb1w4DFID3q5eMRqdi3wIWxUGW0cVe9ubpeFBBarSa+3sz80gSH1ll4WrkOYL06B/vF6iWOezlU/+S4WKJqQLNIg0zHDahx4llAxHYPwqT4km9HYUTKJQaibQE6g7KxhS//ugNWSoNhKjwg77yJ6J3xyMOLTxZpBivLsNw8GLFfXnKKp7R7ShZBpMyvXyySWPaU/fDXhhp+FZvSEuKsiL7CudXv7WklrJLYxUEO5qxW9cpXDduMOi30zlgDmbYI3fCSxgXfzK6PAogkz063pjXD00NRpMCRutqLghjesFyv7Pwt8a5wobAYQmbrBtP6HOWXAhOeTVJmGS4vdLksEyupU+VXmczjz6OADdTSgc+mEF0fjj/mUvFzZuXXm/RAqW/Zol22MtShjuuQr1iwssHmWvINekPe6wu2u5butKswAZlPC/0tbzXVpEoLwaai/Pkjn4h8ajfe8Vw2+F+uJ0gNzIakORd/4FbZMywcdfKlJW3xLcuSaf5p7iJ8qn3W/l8k3CUn02B65Xq+0bVSV6AqIkcAun3Ooq82PMz1+nx9JnfpINtxgAGgrWhiaxh5Kt2NWDpQRUaAIs6cqk3wSkFDYao8ZA9JtxA8BSJmuORpuyrcVE0doOzjgbMpVzMbdYqLfjLY0WKxbfqi9sFR6klpAg/u+xat4TWw8OHZeiaPR5ampLZKQnfwUj5NTNl16Y8lrgw6qxxewnynZoz924pqenz7o0HAI9wo1hzhLw+sU/lFPmKa9T5j" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form1'];
+if (!theForm) {
+    theForm = document.form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=pynGkmcFUV13He1Qd6_TZAisHKiXnC3-7Q1stcJHUFpO1330dy8o0HoCbCwZqlLcttd-zJ4nEwhB6iwPc6qBiw2&amp;t=637811927229275428" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+//<![CDATA[
+SessionExpireAlert(2700);//]]>
+</script>
+
+<script src="/ScriptResource.axd?d=x6wALODbMJK5e0eRC_p1LdFacE2ZN5njuAkYVOsctzYbma5BRZDaVocgiNxzMFGuv0ziB6sMLZHynH3YpR6ovfcDS6_KahsRhBI3kFaScMveDJGALmFFEAIQLLuwJ6it0&amp;t=3a1336b1" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=P5lTttoqSeZXoYRLQMIScE8cimcvKF92Mj_PK8v7czwrhRcQg6fT0lj5Wa9J6dEOTm5VNikEaGpqF7w70tmEXP0ewvmw-ozJEId0I70upwuQoZzvZNjdno70Lapv2_mJ0&amp;t=3a1336b1" type="text/javascript"></script>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="45BDE3F7" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="EHgRN/m1aQc3zgxY1cgWcGSCsTJZBWvpzMzxCbuak15Yp5Gzq6ieKEVMUBX4qH+2ryZcKtuTV6ry22OIne4h72gcLxkfh4kpYJ7dE9wrL0Z+DWNQBsqAuBR6LbDnJmmR14dYbFvIcyy9ytq/KcDkUwYo2lhgBefohvcPJnWwPLjOXUIbfbwSgPlHG6PFhr32ls4GhX8Ur+sZLNi/8Lr7d3X5a0gMhi5agAAp3kW58lqTwVu4R4Mtw5tuOpXgy/va" />
+</div>
+        <div class="page-container">
+            <div class="page-content-wrapper2">
+                <div class="page-content">
+                    
+    <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$MainContent$ctl00', 'form1', ['tctl00$MainContent$updatePanel1','MainContent_updatePanel1'], [], [], 90, 'ctl00');
+//]]>
+</script>
+
+
+    <div id="MainContent_updatePanel1">
+	
+            <input type="hidden" name="ctl00$MainContent$hdnPatientID" id="MainContent_hdnPatientID" value="f501a525-7a28-43a1-86f6-419ad87e7b25" />
+            <input type="hidden" name="ctl00$MainContent$hdnPatientVisitID" id="MainContent_hdnPatientVisitID" value="8358646" />
+            <input type="hidden" name="ctl00$MainContent$hdnPatient_ReportURL" id="MainContent_hdnPatient_ReportURL" />
+            <section class="content">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="portlet light">
+                            <div class="portlet-body">
+                                <div class="portlet grey-cascade box">
+                                    <div class="portlet-title">
+                                        <h4 class="box-title">
+                                            <span id="MainContent_Label1" style="float: left">Patient Details</span></h4>
+                                        <br />
+                                        <br />
+                                    </div>
+                                    <div class="portlet-body">
+                                        
+                                        <div id="MainContent_divResults">
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Registered On  :  </label>
+                                                        <span id="MainContent_lblRegisteredOn" style="color:Blue;font-weight:bold;">4/29/2021 3:50:32 PM</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Patient Name  :  </label>
+                                                        <span id="MainContent_lblPatientName" style="color:Blue;font-weight:bold;">RAHUL HARIBHAU MANE</span>
+                                                        <input type="hidden" name="ctl00$MainContent$hdnWoeDate" id="MainContent_hdnWoeDate" value="4/29/2021 12:00:00 AM" />
+                                                        <input type="hidden" name="ctl00$MainContent$hdnPatient_Code" id="MainContent_hdnPatient_Code" value="LHN210400028465" />
+                                                        <input type="hidden" name="ctl00$MainContent$hdnOwnerID" id="MainContent_hdnOwnerID" value="102631" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Gender  :  </label>
+                                                        <span id="MainContent_lblGender" style="color:Blue;font-weight:bold;">M</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>Barcode  :  </label>
+                                                        <span id="MainContent_lblBarcode" style="color:Blue;font-weight:bold;">21474902</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="MainContent_divFinalResult" class="row" style="margin-left: 3px;">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div>
+		<table class="table table-bordered table-condensed table-hover" cellspacing="0" rules="all" border="1" id="MainContent_PatientMasterGrid" style="border-collapse:collapse;">
+			<thead>
+				<tr class="heading">
+					<th scope="col">Test</th><th scope="col">Final Result</th>
+				</tr>
+			</thead><tbody>
+				<tr>
+					<td align="left" style="width:15%;">COVID-19 QUALITATIVE PCR</td><td align="left" style="width:10%;"> POSITIVE</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label>&nbsp;</label>
+                                                    <div class="form-group" style="padding: 8px 16px;">
+                                                        <input type="submit" name="ctl00$MainContent$btnDownloadReports" value="Download Reports" id="MainContent_btnDownloadReports" class="btn btn-primary btn-sm" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        
+</div>
+
+    <div id="MainContent_updateProgress1" style="display:none;">
+	
+            <div class="divWaiting">
+                <img id="MainContent_imgLoadingtab12" src="../Content/ajax-loader1.gif" style="z-index: 50;" />
+                <div class="label bg-aqua">Please wait....</div>
+            </div>
+        
+</div>
+
+    <script src="../assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+    <script src="../assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src='/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js'></script>
+    <script type="text/javascript" src='/assets/global/plugins/datatables/extensions/TableTools/js/dataTables.tableTools.min.js'></script>
+    <script type="text/javascript" src='/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js'></script>
+
+    <script type="text/javascript">
+        function ProcessJqueryPlugins() {
+            try {
+                $('#MainContent_PatientMasterGrid').dataTable({
+                    "bPaginate": false,
+                    "bLengthChange": false,
+                    "bFilter": false,
+                    "bInfo": false,
+                    "bsort": false,
+                    "bordering": true,
+                    "aaSorting": [],
+                    "bAutoWidth": true
+                });
+            } catch (ex) {
+                //alert(ex);
+            }
+        }
+    </script>
+
+    <style type="text/css">
+        .divWaiting {
+            position: absolute;
+            background-color: #FAFAFA;
+            z-index: 2147483647 !important;
+            opacity: 0.8;
+            overflow: hidden;
+            text-align: center;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            padding-top: 20%;
+        }
+    </style>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- BEGIN CONTAINER -->
+
+    
+
+<script type="text/javascript">
+//<![CDATA[
+Sys.Application.add_init(function() {
+    $create(Sys.UI._UpdateProgress, {"associatedUpdatePanelId":"MainContent_updatePanel1","displayAfter":500,"dynamicLayout":true}, null, null, $get("MainContent_updateProgress1"));
+});
+//]]>
+</script>
+</form>
+    <!-- BEGIN FOOTER -->
+   
+    <!-- END FOOTER -->
+
+</body>
+</html>
